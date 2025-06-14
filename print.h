@@ -2,23 +2,37 @@
 
 #include <iostream>
 #include <string>
+#include <cstring>
+
+#include "str.h"
 
 namespace print {
-    inline void wr(const std::string& msg) {
+    void wr(const str& msg) {
         std::cout << msg;
     }
 
-    inline void wrl(const std::string& msg) {
+    void wrl(const str& msg) {
         wr(msg + '\n');
     }
 
-    inline std::string rdl() {
+    void err(const str& msg) {
+        str s("[ERROR]: ");
+        s += (msg + '\n');
+        wr(s.val);
+    }
+
+    const str rdl() {
         std::string input;
         std::cin >> input;
-        return input;
+        return input.c_str();
+    }
+
+    bool rdl(str& out) {
+        std::string input;
+        std::cin >> input;
+        out = str(input.c_str());
+        return input.length() > 0;
     }
 }
 
-using print::wr;
-using print::wrl;
-using print::rdl;
+using namespace print;

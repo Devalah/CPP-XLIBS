@@ -1,11 +1,18 @@
-#include "bitbuff.h"
-#include "includes.h"
+#pragma once
 
-class str {
+#include <cstring>
+#include <float.h>
+
+struct str {
 public:
     char* val;
 
-    uint16_t Length() const {
+    str() {
+        val = new char[1];
+        val[0] = '\0';
+    }
+
+    uint16_t length() const {
         return static_cast<uint16_t>(std::strlen(val));
     }
 
@@ -109,7 +116,47 @@ public:
         return std::strcmp(val, cstr) == 0;
     }
 
+    bool operator==(std::vector<const char*> cstr) const {
+        bool ret = false;
+
+        for (auto& s : cstr)
+            if (strcmp(val, s) == 0)
+                ret = true;
+
+        return ret;
+    }
+
+    friend bool operator==(std::vector<const char*> lhs, const str& rhs) {
+        bool ret = false;
+
+        for (auto& s : lhs)
+            if (strcmp(rhs.val, s) == 0)
+                ret = true;
+
+        return ret;
+    }
+
     friend bool operator==(const char* lhs, const str& rhs) {
         return std::strcmp(lhs, rhs.val) == 0;
+    }
+
+    friend std::ostream& operator<<(std::ostream& os, const str& s) {
+        return os << s.val;
+    }
+
+    char* begin() {
+        return val;
+    }
+
+    char* end() {
+        return val + std::strlen(val);
+    }
+
+    const char* begin() const {
+        return val;
+    }
+
+    const char* end() const {
+        return val + std::strlen(val);
     }
 };

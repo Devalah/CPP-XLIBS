@@ -1,6 +1,20 @@
 #pragma once
 
-#include "includes.h"
+#include <iostream>
+#include <string>
+#include <vector>
+#include <cstdio>
+#include <istream>
+#include <ostream>
+#include <tuple>
+#include <algorithm>
+#include <bitset>
+#include <iomanip>
+#include <cmath>
+#include <sstream>
+#include <cstdint>
+#include <fstream>
+
 #include "list.h"
 
 namespace File {
