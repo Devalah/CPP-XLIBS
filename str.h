@@ -3,6 +3,8 @@
 #include <cstring>
 #include <float.h>
 
+#include "list.h"
+
 struct str {
 public:
     char* val;
@@ -14,6 +16,63 @@ public:
 
     uint16_t length() const {
         return static_cast<uint16_t>(std::strlen(val));
+    }
+
+    str substr(uint16_t start, uint16_t step) const {
+        uint16_t str_len = std::strlen(val);
+        if (start >= str_len)
+            return str("");
+
+        uint16_t count = 0;
+        for (uint16_t i = 0; i < str_len; ++i)
+            if (i >= start && ((i - start) % step == 0))
+                ++count;
+
+        char* buffer = new char[count + 1];
+        uint16_t index = 0;
+
+        for (uint16_t i = 0; i < str_len; ++i) {
+            if (i >= start && ((i - start) % step == 0)) {
+                buffer[index++] = val[i];
+            }
+        }
+
+        buffer[index] = '\0';
+        str result(buffer);
+        delete[] buffer;
+        return result;
+    }
+
+    bool find(const char& ch) const {
+        for (int i = static_cast<int>(std::strlen(val)) - 1; i >= 0; --i) {
+            if (val[i] == ch) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+
+    bool find(const str& ch) const {
+        uint16_t val_len = std::strlen(val);
+        uint16_t ch_len = std::strlen(ch.val);
+
+        if (ch_len == 0 || ch_len > val_len)
+            return false;
+
+        for (uint16_t i = 0; i <= val_len - ch_len; ++i) {
+            bool match = true;
+            for (uint16_t j = 0; j < ch_len; ++j) {
+                if (val[i + j] != ch[j]) {
+                    match = false;
+                    break;
+                }
+            }
+            if (match)
+                return true;
+        }
+
+        return false;
     }
 
     str(const char* value) {
@@ -32,6 +91,14 @@ public:
 
     ~str() {
         delete[] val;
+    }
+
+    char& operator[](size_t index) {
+        return val[index];
+    }
+
+    const char& operator[](size_t index) const {
+        return val[index];
     }
 
     str& operator=(const str& other) {
@@ -54,8 +121,8 @@ public:
     }
 
     str& operator+=(const str& other) {
-        size_t len1 = std::strlen(val);
-        size_t len2 = std::strlen(other.val);
+        uint16_t len1 = std::strlen(val);
+        uint16_t len2 = std::strlen(other.val);
         char* nb = new char[len1 + len2 + 1];
 
         strcpy_s(nb, len1 + len2 + 1, val);
@@ -67,8 +134,8 @@ public:
     }
 
     str& operator+=(const char* cstr) {
-        size_t len1 = std::strlen(val);
-        size_t len2 = std::strlen(cstr);
+        uint16_t len1 = std::strlen(val);
+        uint16_t len2 = std::strlen(cstr);
         char* nb = new char[len1 + len2 + 1];
 
         strcpy_s(nb, len1 + len2 + 1, val);
@@ -116,7 +183,7 @@ public:
         return std::strcmp(val, cstr) == 0;
     }
 
-    bool operator==(std::vector<const char*> cstr) const {
+    bool operator==(list<const char*> cstr) const {
         bool ret = false;
 
         for (auto& s : cstr)
@@ -126,7 +193,7 @@ public:
         return ret;
     }
 
-    friend bool operator==(std::vector<const char*> lhs, const str& rhs) {
+    friend bool operator==(list<const char*> lhs, const str& rhs) {
         bool ret = false;
 
         for (auto& s : lhs)

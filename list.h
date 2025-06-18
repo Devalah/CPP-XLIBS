@@ -1,100 +1,164 @@
 #pragma once
 
-#include <iostream>
-#include <string>
-#include <vector>
-#include <cstdio>
-#include <istream>
-#include <ostream>
-#include <tuple>
-#include <algorithm>
-#include <bitset>
-#include <iomanip>
-#include <cmath>
-#include <sstream>
-#include <cstdint>
-#include <fstream>
 #include <stdexcept>
+#include <cstdint>
+#include <algorithm>
 
 template<typename T>
-class List {
+class list {
 private:
-    std::vector<T> data;
+    T* data = nullptr;
+    int16_t capacity = 0;
 
-public:
-    void Add(const T& item) {
-        if (data.size() >= static_cast<std::size_t>(INT16_MAX))
-            throw std::length_error("List capacity exceeded int16_t max.");
-        data.push_back(item);
+    void Resize(int16_t newCapacity) {
+        if (newCapacity <= capacity)
+            return;
+
+        T* newData = new T[newCapacity];
+        for (int16_t i = 0; i < count; ++i)
+            newData[i] = std::move(data[i]);
+
+        delete[] data;
+        data = newData;
+        capacity = newCapacity;
     }
 
-    void AddRange(const std::vector<T>& items) {
-        if (data.size() + items.size() > static_cast<std::size_t>(INT16_MAX))
+public:
+    int16_t count = 0;
+
+    list() {
+        Resize(4);
+    }
+
+    ~list() {
+        delete[] data;
+    }
+
+    list(const list& other) {
+        Resize(other.capacity);
+        count = other.count;
+        for (int16_t i = 0; i < count; ++i)
+            data[i] = other.data[i];
+    }
+
+    list(std::initializer_list<T> items) {
+        Resize(static_cast<int16_t>(items.size()));
+        for (const T& item : items)
+            Add(item);
+    }
+
+    list& operator=(const list& other) {
+        if (this != &other) {
+            delete[] data;
+            data = nullptr;
+            capacity = count = 0;
+            Resize(other.capacity);
+            count = other.count;
+            for (int16_t i = 0; i < count; ++i)
+                data[i] = other.data[i];
+        }
+        return *this;
+    }
+
+    list(list&& other) noexcept {
+        data = other.data;
+        count = other.count;
+        capacity = other.capacity;
+        other.data = nullptr;
+        other.count = 0;
+        other.capacity = 0;
+    }
+
+    list& operator=(list&& other) noexcept {
+        if (this != &other) {
+            delete[] data;
+            data = other.data;
+            count = other.count;
+            capacity = other.capacity;
+            other.data = nullptr;
+            other.count = 0;
+            other.capacity = 0;
+        }
+        return *this;
+    }
+
+    void Add(const T& item) {
+        if (count >= INT16_MAX)
+            throw std::length_error("List capacity exceeded int16_t max.");
+        if (count >= capacity)
+            Resize(capacity * 2);
+        data[count++] = item;
+    }
+
+    void AddRange(const T* items, int16_t itemCount) {
+        if (count + itemCount > INT16_MAX)
             throw std::length_error("AddRange would exceed int16_t max capacity.");
-        data.insert(data.end(), items.begin(), items.end());
+        if (count + itemCount > capacity)
+            Resize(std::max<int16_t>(capacity * 2, count + itemCount));
+        for (int16_t i = 0; i < itemCount; ++i)
+            data[count++] = items[i];
     }
 
     bool Remove(const T& item) {
-        auto it = std::find(data.begin(), data.end(), item);
-        if (it != data.end()) {
-            data.erase(it);
-            return true;
+        for (int16_t i = 0; i < count; ++i) {
+            if (data[i] == item) {
+                for (int16_t j = i; j < count - 1; ++j)
+                    data[j] = std::move(data[j + 1]);
+                --count;
+                return true;
+            }
         }
         return false;
     }
 
     void RemoveAt(int16_t index) {
-        if (index < 0 || static_cast<std::size_t>(index) >= data.size())
+        if (index < 0 || index >= count)
             throw std::out_of_range("Index out of range");
-        data.erase(data.begin() + index);
+        for (int16_t i = index; i < count - 1; ++i)
+            data[i] = std::move(data[i + 1]);
+        --count;
     }
 
     void Clear() {
-        data.clear();
+        count = 0;
     }
 
     bool Contains(const T& item) const {
-        return std::find(data.begin(), data.end(), item) != data.end();
+        for (int16_t i = 0; i < count; ++i)
+            if (data[i] == item)
+                return true;
+        return false;
     }
 
     int16_t IndexOf(const T& item) const {
-        auto it = std::find(data.begin(), data.end(), item);
-        if (it != data.end()) {
-            return static_cast<int16_t>(std::distance(data.begin(), it));
-        }
-        return static_cast<int16_t>(-1);
-    }
-
-    int16_t Count() const {
-        return static_cast<int16_t>(data.size());
+        for (int16_t i = 0; i < count; ++i)
+            if (data[i] == item)
+                return i;
+        return -1;
     }
 
     T& operator[](int16_t index) {
-        if (index < 0 || static_cast<std::size_t>(index) >= data.size())
+        if (index < 0 || index >= count)
             throw std::out_of_range("Index out of range");
         return data[index];
     }
 
     const T& operator[](int16_t index) const {
-        if (index < 0 || static_cast<std::size_t>(index) >= data.size())
+        if (index < 0 || index >= count)
             throw std::out_of_range("Index out of range");
         return data[index];
     }
 
-    T& At(int16_t index) {
-        if (index < 0 || static_cast<std::size_t>(index) >= data.size())
-            throw std::out_of_range("Index out of range");
-        return data[index];
+    const T& At(int16_t index) {
+        return (*this)[index];
     }
 
     const T& At(int16_t index) const {
-        if (index < 0 || static_cast<std::size_t>(index) >= data.size())
-            throw std::out_of_range("Index out of range");
-        return data[index];
+        return (*this)[index];
     }
 
-    auto begin() { return data.begin(); }
-    auto end() { return data.end(); }
-    auto begin() const { return data.begin(); }
-    auto end()   const { return data.end(); }
+    T* begin() { return data; }
+    T* end() { return data + count; }
+    const T* begin() const { return data; }
+    const T* end() const { return data + count; }
 };
