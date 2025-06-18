@@ -65,3 +65,11 @@ int u = buffer.ReadUInt(7);
 int i = buffer.ReadInt(6);
 bool b = buffer.Read();
 str s = buffer.ReadString(6);
+```
+
+## 📝 Note
+- No idea what I am doing, this is my first C++ project thingy because C# is just shit. Give me some slack
+
+## 📞 Contact Me
+- Discord user: ptr.h
+- das it
