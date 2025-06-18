@@ -67,9 +67,6 @@ bool b = buffer.Read();
 str s = buffer.ReadString(6);
 ```
 
-## 💉 Injector
-- {fake emoji} Forgot I added it, but if you wanna inject a dll using just it's path and including the target exe. You can, but I didn't really work on it for long so the errors might be weird.
-
 ## 📝 Note
 - No idea what I am doing, this is my first C++ project thingy because C# is just shit. Give me some slack
 
