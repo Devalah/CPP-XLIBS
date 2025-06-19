@@ -52,7 +52,7 @@ public:
         bytes.Add(0);
     }
 
-    void Write(const bool value) {
+    void Write(const bool& value) {
         if (bitPos == 8) {
             bytes.Add(0);
             bitPos = 0;
@@ -66,7 +66,7 @@ public:
 
     void WriteUInt(const uint32_t& num, const uint8_t& bitCount) {
         if (bitCount > 32)
-            throw std::invalid_argument("yo, you don't need a bitCount over 32 calm down cuz");
+            throw std::invalid_argument("bitCount cannot go over 32");
 
         for (uint8_t i = 0; i < bitCount; ++i) {
             bool bit = (num >> i) & 1;
@@ -76,7 +76,7 @@ public:
 
     void WriteUDecimal(const UDecimal& dec, const uint8_t& bitCount) {
         if (bitCount > 32)
-            throw std::invalid_argument("yo, you don't need a bitCount over 32 calm down cuz");
+            throw std::invalid_argument("bitCount cannot go over 32");
 
         WriteUInt(dec.deciCount, 2);
         WriteUInt(dec.val, bitCount);
@@ -84,14 +84,15 @@ public:
 
     void WriteDecimal(const Decimal& dec, const uint8_t& bitCount) {
         if (bitCount > 32)
-            throw std::invalid_argument("yo, you don't need a bitCount over 32 calm down cuz");
+            throw std::invalid_argument("bitCount cannot go over 32");
 
         WriteUInt(dec.deciCount, 2);
         WriteInt(dec.val, bitCount);
     }
 
     void WriteInt(const int32_t& number, const uint8_t& bitCount) {
-        if (bitCount > 32) throw std::invalid_argument("Bit count too large");
+        if (bitCount > 32)
+            throw std::invalid_argument("bitCount cannot go over 32");
 
         WriteUInt(number, bitCount);
     }
@@ -132,7 +133,7 @@ public:
         int bitIndex = readBitPos % 8;
 
         if (byteIndex >= (uint8_t)bytes.count)
-            throw std::out_of_range("Read past end of buffer, align your write bitCounts with your read bitCounts");
+            throw std::out_of_range("Cannot read past end of buffer, align your write bitCounts with your read bitCounts");
 
         const uint8_t byte = bytes[byteIndex];
         bool bit = (byte & (1 << bitIndex)) != 0;
@@ -142,7 +143,7 @@ public:
 
     const uint32_t ReadUInt(const uint8_t& bitCount) {
         if (bitCount > 32)
-            throw std::invalid_argument("yo, you don't need a bitCount over 32 calm down cuz");
+            throw std::invalid_argument("bitCount cannot go over 32");
 
         uint32_t number = 0;
         for (uint8_t i = 0; i < bitCount; ++i)
@@ -154,7 +155,7 @@ public:
 
     const UDecimal ReadUDecimal(const uint8_t& bitCount) {
         if (bitCount > 32)
-            throw std::invalid_argument("yo, you don't need a bitCount over 32 calm down cuz");
+            throw std::invalid_argument("bitCount cannot go over 32");
 
         uint8_t decimals = ReadUInt(2);
         uint32_t num = ReadUInt(bitCount);
@@ -163,7 +164,7 @@ public:
 
     const Decimal ReadDecimal(const uint8_t& bitCount) {
         if (bitCount > 32)
-            throw std::invalid_argument("yo, you don't need a bitCount over 32 calm down cuz");
+            throw std::invalid_argument("bitCount cannot go over 32");
 
         uint8_t decimals = ReadUInt(2);
         int32_t num = ReadInt(bitCount);
@@ -209,7 +210,8 @@ public:
         return bytes;
     }
 
-    void ResetRead() {
+    void Reset() {
+        bitPos = 0;
         readBitPos = 0;
     }
 

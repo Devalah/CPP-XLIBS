@@ -2,11 +2,13 @@
 
 #include <cstring>
 #include <float.h>
+#include <string>
 
 #include "list.h"
 
 struct str {
 public:
+
     char* val;
 
     str() {
