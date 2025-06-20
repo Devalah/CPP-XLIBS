@@ -60,7 +60,7 @@ buffer.WriteInt(-10, 6);         // 6-bit signed int
 buffer.Write(true);              // boolean (1 bit)
 buffer.WriteString("YO!", 6);    // compact string, 6 bits per char
 
-buffer.ResetRead();
+buffer.Reset();
 int u = buffer.ReadUInt(7);
 int i = buffer.ReadInt(6);
 bool b = buffer.Read();
